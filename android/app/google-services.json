@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "231454825672",
+    "project_id": "uptp-control",
+    "storage_bucket": "uptp-control.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:231454825672:android:6c5588aa91bff612ab99fd",
+        "android_client_info": {
+          "package_name": "com.uptp.uptp_control"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQwe9DFqJUJCRywgqOcBdhYpi0nX2sBNU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

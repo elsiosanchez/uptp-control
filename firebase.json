@@ -1,0 +1,28 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "uptp-control",
+          "appId": "1:231454825672:android:6c5588aa91bff612ab99fd",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "uptp-control",
+          "configurations": {
+            "android": "1:231454825672:android:6c5588aa91bff612ab99fd",
+            "web": "1:231454825672:web:c3eb2a11aa6a93d1ab99fd"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "database": "(default)",
+    "location": "nam5",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}
