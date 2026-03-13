@@ -17,6 +17,7 @@ class _EstudianteFormState extends State<EstudianteForm> {
   final _apellidoController = TextEditingController();
   final _cedulaController = TextEditingController();
   final _emailController = TextEditingController();
+  final _telefonoController = TextEditingController();
 
   late String _seccionId;
   late String _materiaId;
@@ -37,6 +38,7 @@ class _EstudianteFormState extends State<EstudianteForm> {
         _apellidoController.text = _estEdit!.apellido;
         _cedulaController.text = _estEdit!.cedula;
         _emailController.text = _estEdit!.email ?? '';
+        _telefonoController.text = _estEdit!.telefono ?? '';
       }
       _initialized = true;
     }
@@ -48,6 +50,7 @@ class _EstudianteFormState extends State<EstudianteForm> {
     _apellidoController.dispose();
     _cedulaController.dispose();
     _emailController.dispose();
+    _telefonoController.dispose();
     super.dispose();
   }
 
@@ -56,6 +59,7 @@ class _EstudianteFormState extends State<EstudianteForm> {
 
     final provider = context.read<EstudianteProvider>();
     final email = _emailController.text.trim();
+    final telefono = _telefonoController.text.trim();
     bool ok;
 
     if (_estEdit == null) {
@@ -65,6 +69,7 @@ class _EstudianteFormState extends State<EstudianteForm> {
         apellido: _apellidoController.text.trim(),
         cedula: _cedulaController.text.trim(),
         email: email.isEmpty ? null : email,
+        telefono: telefono.isEmpty ? null : telefono,
         activo: true,
       );
       ok = await provider.addEstudiante(_seccionId, _materiaId, nuevo);
@@ -75,6 +80,7 @@ class _EstudianteFormState extends State<EstudianteForm> {
         'apellido': _apellidoController.text.trim(),
         'cedula': _cedulaController.text.trim(),
         'email': email.isEmpty ? null : email,
+        'telefono': telefono.isEmpty ? null : telefono,
       });
     }
 
@@ -160,6 +166,16 @@ class _EstudianteFormState extends State<EstudianteForm> {
                   prefixIcon: Icon(Icons.email_outlined),
                 ),
                 keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _telefonoController,
+                decoration: const InputDecoration(
+                  labelText: 'Teléfono (opcional)',
+                  hintText: 'Ej: 0412-1234567',
+                  prefixIcon: Icon(Icons.phone_outlined),
+                ),
+                keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 32),
               SizedBox(

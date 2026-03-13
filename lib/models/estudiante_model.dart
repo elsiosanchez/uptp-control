@@ -6,6 +6,7 @@ class EstudianteModel {
   final String apellido;
   final String cedula;
   final String? email;
+  final String? telefono;
   final bool activo;
   final DateTime? createdAt;
 
@@ -15,6 +16,7 @@ class EstudianteModel {
     required this.apellido,
     required this.cedula,
     this.email,
+    this.telefono,
     required this.activo,
     this.createdAt,
   });
@@ -29,6 +31,7 @@ class EstudianteModel {
       apellido: data['apellido'] ?? '',
       cedula: data['cedula'] ?? '',
       email: data['email'] as String?,
+      telefono: data['telefono'] as String?,
       activo: data['activo'] ?? true,
       createdAt: (data['created_at'] as Timestamp?)?.toDate(),
     );
@@ -40,6 +43,7 @@ class EstudianteModel {
       'apellido': apellido,
       'cedula': cedula,
       'email': email,
+      'telefono': telefono,
       'activo': activo,
       'created_at': FieldValue.serverTimestamp(),
     };
@@ -50,6 +54,7 @@ class EstudianteModel {
     String? apellido,
     String? cedula,
     String? email,
+    String? telefono,
     bool? activo,
   }) {
     return EstudianteModel(
@@ -58,6 +63,7 @@ class EstudianteModel {
       apellido: apellido ?? this.apellido,
       cedula: cedula ?? this.cedula,
       email: email ?? this.email,
+      telefono: telefono ?? this.telefono,
       activo: activo ?? this.activo,
       createdAt: createdAt,
     );

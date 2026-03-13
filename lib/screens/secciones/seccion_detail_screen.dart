@@ -54,15 +54,22 @@ class _SeccionDetailScreenState extends State<SeccionDetailScreen> {
         ),
         child: const Icon(Icons.add),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _InfoCard(seccion: _seccion),
-            const SizedBox(height: 16),
-            _MateriasSection(seccion: _seccion),
-          ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          context.read<MateriaProvider>().loadMaterias(_seccion.id, forceReload: true);
+          await Future.delayed(const Duration(milliseconds: 500));
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _InfoCard(seccion: _seccion),
+              const SizedBox(height: 16),
+              _MateriasSection(seccion: _seccion),
+            ],
+          ),
         ),
       ),
     );
@@ -160,7 +167,7 @@ class _MateriasSection extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Eliminar materia'),
-        content: Text('¿Eliminar "${materia.nombre}" de esta sección?'),
+        content: Text('¿Eliminar "${materia.nombre}"? Se eliminarán evaluaciones, estudiantes y notas de esta materia.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),

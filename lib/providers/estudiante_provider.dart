@@ -17,9 +17,11 @@ class EstudianteProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  void loadEstudiantes(String seccionId, String materiaId) {
+  void loadEstudiantes(String seccionId, String materiaId,
+      {bool forceReload = false}) {
     if (_currentSeccionId == seccionId &&
-        _currentMateriaId == materiaId) return;
+        _currentMateriaId == materiaId &&
+        !forceReload) return;
     _currentSeccionId = seccionId;
     _currentMateriaId = materiaId;
     _sub?.cancel();
@@ -67,6 +69,7 @@ class EstudianteProvider extends ChangeNotifier {
   Future<bool> deleteEstudiante(
       String seccionId, String materiaId, String estId) async {
     try {
+      await _service.deleteNotasByEstudiante(seccionId, materiaId, estId);
       await _service.deleteEstudiante(seccionId, materiaId, estId);
       return true;
     } catch (e) {

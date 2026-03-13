@@ -33,7 +33,7 @@ class _SeccionesScreenState extends State<SeccionesScreen> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Eliminar seccion'),
-        content: Text('¿Eliminar "${seccion.nombre}"? Esta accion no se puede deshacer.'),
+        content: Text('¿Eliminar "${seccion.nombre}" y todo su contenido? Se eliminarán materias, estudiantes, evaluaciones y notas.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -102,7 +102,12 @@ class _SeccionesScreenState extends State<SeccionesScreen> {
                             : null,
                         iconColor: AppTheme.colorSecciones,
                       )
-                    : ListView.builder(
+                    : RefreshIndicator(
+                        onRefresh: () async {
+                          context.read<SeccionProvider>().forceReload();
+                          await Future.delayed(const Duration(milliseconds: 500));
+                        },
+                        child: ListView.builder(
                         itemCount: filtered.length,
                         itemBuilder: (context, index) {
                           final seccion = filtered[index];
@@ -165,6 +170,7 @@ class _SeccionesScreenState extends State<SeccionesScreen> {
                             ),
                           );
                         },
+                      ),
                       ),
               ),
             ],

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:printing/printing.dart';
 import '../../config/app_theme.dart';
 import '../../config/constants.dart';
+import '../../models/evaluacion_model.dart';
 import '../../models/estudiante_model.dart';
 import '../../models/nota_model.dart';
 import '../../services/firestore_service.dart';
+import '../../services/pdf_service.dart';
 
 class ResumenMateriaScreen extends StatefulWidget {
   const ResumenMateriaScreen({super.key});
@@ -20,8 +23,11 @@ class _ResumenMateriaScreenState extends State<ResumenMateriaScreen> {
   late String _seccionId;
   late String _materiaId;
   late String _materiaNombre;
+  String _seccionNombre = '';
 
   List<EstudianteModel> _estudiantes = [];
+  List<EvaluacionModel> _evaluaciones = [];
+  List<NotaModel> _todasNotas = [];
   Map<String, double> _notasFinales = {}; // estudianteId → nota final
   double _promedio = 0;
   int _aprobados = 0;
@@ -38,6 +44,7 @@ class _ResumenMateriaScreenState extends State<ResumenMateriaScreen> {
       _seccionId = args['seccionId'] as String;
       _materiaId = args['materiaId'] as String;
       _materiaNombre = args['materiaNombre'] as String;
+      _seccionNombre = (args['seccionNombre'] as String?) ?? '';
       _initialized = true;
       _loadData();
     }
@@ -90,6 +97,8 @@ class _ResumenMateriaScreenState extends State<ResumenMateriaScreen> {
 
       setState(() {
         _estudiantes = estudiantes;
+        _evaluaciones = evaluaciones;
+        _todasNotas = todasNotas;
         _notasFinales = finales;
         _promedio = estudiantes.isNotEmpty
             ? sumaTotal / estudiantes.length
@@ -105,10 +114,47 @@ class _ResumenMateriaScreenState extends State<ResumenMateriaScreen> {
     }
   }
 
+  Future<void> _exportPdf() async {
+    try {
+      final doc = await PdfService().generarResumenMateria(
+        materiaNombre: _materiaNombre,
+        seccionNombre: _seccionNombre,
+        evaluaciones: _evaluaciones,
+        estudiantes: _estudiantes,
+        notas: _todasNotas,
+        promedio: _promedio,
+        aprobados: _aprobados,
+        reprobados: _reprobados,
+        notaMax: _notaMaxima,
+        notaMin: _notaMinima,
+      );
+      await Printing.layoutPdf(
+        onLayout: (format) => doc.save(),
+        name: 'Resumen_$_materiaNombre',
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al generar PDF: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Resumen: $_materiaNombre')),
+      appBar: AppBar(
+        title: Text('Resumen: $_materiaNombre'),
+        actions: [
+          if (!_loading)
+            IconButton(
+              icon: const Icon(Icons.picture_as_pdf),
+              tooltip: 'Exportar PDF',
+              onPressed: _exportPdf,
+            ),
+        ],
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

@@ -8,6 +8,7 @@ import '../screens/materias/materia_form.dart';
 import '../screens/materias/materia_detail_screen.dart';
 import '../screens/evaluaciones/evaluacion_form.dart';
 import '../screens/estudiantes/estudiante_form.dart';
+import '../screens/estudiantes/import_estudiantes_screen.dart';
 import '../screens/notas/notas_estudiante_screen.dart';
 import '../screens/notas/carga_masiva_screen.dart';
 import '../screens/notas/boletin_screen.dart';
@@ -27,6 +28,7 @@ class AppRoutes {
   static const String cargaMasiva = '/notas/carga-masiva';
   static const String boletin = '/notas/boletin';
   static const String resumenMateria = '/notas/resumen';
+  static const String importEstudiantes = '/estudiantes/importar';
 
   static Map<String, WidgetBuilder> get routes {
     return {
@@ -43,6 +45,7 @@ class AppRoutes {
       cargaMasiva: (_) => const CargaMasivaScreen(),
       boletin: (_) => const BoletinScreen(),
       resumenMateria: (_) => const ResumenMateriaScreen(),
+      importEstudiantes: (_) => const ImportEstudiantesScreen(),
     };
   }
 }

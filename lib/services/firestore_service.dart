@@ -271,4 +271,101 @@ class FirestoreService {
     }
     await batch.commit();
   }
+
+  // ─────────────────────────────────────────
+  // ELIMINACIÓN EN CASCADA
+  // ─────────────────────────────────────────
+
+  /// Elimina una sección y todo su contenido (materias, evaluaciones, estudiantes, notas)
+  Future<void> deleteSeccionCascade(String seccionId) async {
+    // Obtener todas las materias de la sección
+    final materiasSnap = await _materiasRef(seccionId).get();
+    for (final materiaDoc in materiasSnap.docs) {
+      await deleteMateriaCascade(seccionId, materiaDoc.id);
+    }
+    // Eliminar la sección
+    await _db.collection(AppConstants.colSecciones).doc(seccionId).delete();
+  }
+
+  /// Elimina una materia y todo su contenido (evaluaciones, estudiantes, notas)
+  Future<void> deleteMateriaCascade(String seccionId, String materiaId) async {
+    final batch = _db.batch();
+
+    // Eliminar todas las notas
+    final notasSnap = await _notasRef(seccionId, materiaId).get();
+    for (final doc in notasSnap.docs) {
+      batch.delete(doc.reference);
+    }
+
+    // Eliminar todos los estudiantes
+    final estudiantesSnap = await _estudiantesRef(seccionId, materiaId).get();
+    for (final doc in estudiantesSnap.docs) {
+      batch.delete(doc.reference);
+    }
+
+    // Eliminar todas las evaluaciones
+    final evaluacionesSnap = await _evaluacionesRef(seccionId, materiaId).get();
+    for (final doc in evaluacionesSnap.docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
+
+    // Eliminar la materia
+    await _materiasRef(seccionId).doc(materiaId).delete();
+  }
+
+  /// Elimina todas las notas de un estudiante en una materia
+  Future<void> deleteNotasByEstudiante(
+      String seccionId, String materiaId, String estudianteId) async {
+    final snap = await _notasRef(seccionId, materiaId)
+        .where('estudiante_id', isEqualTo: estudianteId)
+        .get();
+    final batch = _db.batch();
+    for (final doc in snap.docs) {
+      batch.delete(doc.reference);
+    }
+    await batch.commit();
+  }
+
+  /// Elimina todas las notas de una evaluación
+  Future<void> deleteNotasByEvaluacion(
+      String seccionId, String materiaId, String evaluacionId) async {
+    final snap = await _notasRef(seccionId, materiaId)
+        .where('evaluacion_id', isEqualTo: evaluacionId)
+        .get();
+    final batch = _db.batch();
+    for (final doc in snap.docs) {
+      batch.delete(doc.reference);
+    }
+    await batch.commit();
+  }
+
+  /// Importar estudiantes en batch
+  Future<int> importarEstudiantesBatch(
+      String seccionId, String materiaId, List<EstudianteModel> estudiantes) async {
+    int imported = 0;
+    // Firestore batch limit is 500
+    for (var i = 0; i < estudiantes.length; i += 450) {
+      final batch = _db.batch();
+      final chunk = estudiantes.skip(i).take(450);
+      for (final est in chunk) {
+        batch.set(_estudiantesRef(seccionId, materiaId).doc(), est.toMap());
+        imported++;
+      }
+      await batch.commit();
+    }
+    return imported;
+  }
+
+  /// Obtener lista de cédulas existentes en una materia
+  Future<List<String>> getCedulasExistentes(
+      String seccionId, String materiaId) async {
+    final snap = await _estudiantesRef(seccionId, materiaId)
+        .where('activo', isEqualTo: true)
+        .get();
+    return snap.docs
+        .map((d) => (d.data() as Map<String, dynamic>)['cedula'] as String)
+        .toList();
+  }
 }

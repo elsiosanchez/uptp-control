@@ -22,9 +22,11 @@ class EvaluacionProvider extends ChangeNotifier {
 
   bool get evaluacionesCompletas => (porcentajeTotal - 100).abs() < 0.01;
 
-  void loadEvaluaciones(String seccionId, String materiaId) {
+  void loadEvaluaciones(String seccionId, String materiaId,
+      {bool forceReload = false}) {
     if (_currentSeccionId == seccionId &&
-        _currentMateriaId == materiaId) return;
+        _currentMateriaId == materiaId &&
+        !forceReload) return;
     _currentSeccionId = seccionId;
     _currentMateriaId = materiaId;
     _sub?.cancel();
@@ -72,6 +74,7 @@ class EvaluacionProvider extends ChangeNotifier {
   Future<bool> deleteEvaluacion(
       String seccionId, String materiaId, String evalId) async {
     try {
+      await _service.deleteNotasByEvaluacion(seccionId, materiaId, evalId);
       await _service.deleteEvaluacion(seccionId, materiaId, evalId);
       return true;
     } catch (e) {

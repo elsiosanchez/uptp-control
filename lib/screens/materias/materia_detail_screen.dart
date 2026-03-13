@@ -200,7 +200,13 @@ class _EvaluacionesTab extends StatelessWidget {
                       subtitle: 'Toca + para crear la primera evaluación',
                       iconColor: AppTheme.colorNotas,
                     )
-                  : ListView.builder(
+                  : RefreshIndicator(
+                      onRefresh: () async {
+                        context.read<EvaluacionProvider>().loadEvaluaciones(
+                            seccionId, materiaId, forceReload: true);
+                        await Future.delayed(const Duration(milliseconds: 500));
+                      },
+                      child: ListView.builder(
                       itemCount: evals.length,
                       itemBuilder: (context, index) {
                         final eval = evals[index];
@@ -269,6 +275,7 @@ class _EvaluacionesTab extends StatelessWidget {
                           ),
                         );
                       },
+                    ),
                     ),
             ),
           ],
@@ -360,11 +367,29 @@ class _PorcentajeIndicator extends StatelessWidget {
 
 // ─── Estudiantes Tab ────────────────────────────────────────────────────────
 
-class _EstudiantesTab extends StatelessWidget {
+class _EstudiantesTab extends StatefulWidget {
   final String seccionId;
   final String materiaId;
   const _EstudiantesTab(
       {required this.seccionId, required this.materiaId});
+
+  @override
+  State<_EstudiantesTab> createState() => _EstudiantesTabState();
+}
+
+class _EstudiantesTabState extends State<_EstudiantesTab> {
+  String _query = '';
+
+  String get seccionId => widget.seccionId;
+  String get materiaId => widget.materiaId;
+
+  List<EstudianteModel> _filtered(List<EstudianteModel> todos) {
+    if (_query.isEmpty) return todos;
+    final q = _query.toLowerCase();
+    return todos.where((e) =>
+        e.nombreCompleto.toLowerCase().contains(q) ||
+        e.cedula.toLowerCase().contains(q)).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -372,7 +397,8 @@ class _EstudiantesTab extends StatelessWidget {
       builder: (context, provider, _) {
         if (provider.isLoading) return const ShimmerList(itemCount: 3);
 
-        final estudiantes = provider.estudiantes;
+        final todos = provider.estudiantes;
+        final estudiantes = _filtered(todos);
 
         return Column(
           children: [
@@ -382,11 +408,41 @@ class _EstudiantesTab extends StatelessWidget {
                 children: [
                   Icon(Icons.people, color: Colors.grey.shade600, size: 18),
                   const SizedBox(width: 6),
-                  Text('${estudiantes.length} estudiantes inscritos',
-                      style: TextStyle(color: Colors.grey.shade600)),
+                  Expanded(
+                    child: Text('${todos.length} estudiantes inscritos',
+                        style: TextStyle(color: Colors.grey.shade600)),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.importEstudiantes,
+                      arguments: {
+                        'seccionId': seccionId,
+                        'materiaId': materiaId,
+                      },
+                    ),
+                    icon: const Icon(Icons.upload_file, size: 16),
+                    label: const Text('Importar'),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      textStyle: const TextStyle(fontSize: 12),
+                    ),
+                  ),
                 ],
               ),
             ),
+            if (todos.length > 3)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: TextField(
+                  decoration: const InputDecoration(
+                    hintText: 'Buscar por nombre o cédula...',
+                    prefixIcon: Icon(Icons.search),
+                    isDense: true,
+                  ),
+                  onChanged: (v) => setState(() => _query = v),
+                ),
+              ),
             Expanded(
               child: estudiantes.isEmpty
                   ? const EmptyState(
@@ -395,7 +451,13 @@ class _EstudiantesTab extends StatelessWidget {
                       subtitle: 'Toca + para agregar el primer estudiante',
                       iconColor: AppTheme.colorEstudiantes,
                     )
-                  : ListView.builder(
+                  : RefreshIndicator(
+                      onRefresh: () async {
+                        context.read<EstudianteProvider>().loadEstudiantes(
+                            seccionId, materiaId, forceReload: true);
+                        await Future.delayed(const Duration(milliseconds: 500));
+                      },
+                      child: ListView.builder(
                       itemCount: estudiantes.length,
                       itemBuilder: (context, index) {
                         final est = estudiantes[index];
@@ -453,6 +515,7 @@ class _EstudiantesTab extends StatelessWidget {
                           ),
                         );
                       },
+                    ),
                     ),
             ),
           ],

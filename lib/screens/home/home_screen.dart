@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../config/app_theme.dart';
 import '../../config/routes.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/seccion_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -56,8 +57,41 @@ class HomeScreen extends StatelessWidget {
           children: [
             _WelcomeCard(email: email),
             const SizedBox(height: 24),
+            // Counters
+            Consumer<SeccionProvider>(
+              builder: (context, provider, _) {
+                final total = provider.secciones.length;
+                return Row(
+                  children: [
+                    _CounterCard(
+                      icon: Icons.class_rounded,
+                      label: 'Secciones',
+                      count: total,
+                      color: AppTheme.colorSecciones,
+                    ),
+                    const SizedBox(width: 12),
+                    const _CounterCard(
+                      icon: Icons.menu_book,
+                      label: 'Materias',
+                      count: null,
+                      color: AppTheme.colorMaterias,
+                      subtitle: 'por sección',
+                    ),
+                    const SizedBox(width: 12),
+                    const _CounterCard(
+                      icon: Icons.people,
+                      label: 'Control',
+                      count: null,
+                      color: AppTheme.colorEstudiantes,
+                      subtitle: 'de notas',
+                    ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 24),
             Text(
-              'Módulos',
+              'Acceso rápido',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -116,6 +150,55 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CounterCard extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final int? count;
+  final Color color;
+  final String? subtitle;
+
+  const _CounterCard({
+    required this.icon,
+    required this.label,
+    this.count,
+    required this.color,
+    this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 28),
+              const SizedBox(height: 6),
+              if (count != null)
+                Text(
+                  '$count',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                )
+              else
+                Icon(icon, color: color.withOpacity(0.3), size: 22),
+              Text(
+                subtitle ?? label,
+                style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+              ),
+            ],
+          ),
         ),
       ),
     );

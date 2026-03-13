@@ -36,6 +36,11 @@ class SeccionProvider extends ChangeNotifier {
     );
   }
 
+  void forceReload() {
+    _sub?.cancel();
+    _loadSecciones();
+  }
+
   Future<bool> addSeccion(SeccionModel seccion) async {
     try {
       await _service.addSeccion(seccion);
@@ -60,7 +65,7 @@ class SeccionProvider extends ChangeNotifier {
 
   Future<bool> deleteSeccion(String id) async {
     try {
-      await _service.deleteSeccion(id);
+      await _service.deleteSeccionCascade(id);
       return true;
     } catch (e) {
       _error = e.toString();

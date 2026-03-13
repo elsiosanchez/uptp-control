@@ -63,7 +63,7 @@ class MateriaProvider extends ChangeNotifier {
 
   Future<bool> deleteMateria(String seccionId, String materiaId) async {
     try {
-      await _service.deleteMateria(seccionId, materiaId);
+      await _service.deleteMateriaCascade(seccionId, materiaId);
       return true;
     } catch (e) {
       _error = e.toString();
